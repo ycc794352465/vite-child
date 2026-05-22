@@ -1,5 +1,7 @@
 import { App,createApp } from 'vue'
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, 
+  // createWebHistory,
+   createWebHashHistory } from 'vue-router'
 import myApp from './App.vue'
 import './style.css'
 import { routes } from './router'
@@ -15,7 +17,8 @@ function render(props: any) {
   const { container } = props;
   console.log(routes)
   router = createRouter({
-    history: createWebHistory('/vite-child/'),
+    // history: createWebHistory('/vite-child/'),
+    history: createWebHashHistory(),
     routes
   })
   app =createApp(myApp);
