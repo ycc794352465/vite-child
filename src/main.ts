@@ -15,8 +15,10 @@ let app:App;
 let router:any = null;
 function render(props: any) {
   const { container } = props;
+  console.log(routes)
   router = createRouter({
-    history: createWebHistory(`/${APP_NAME}/`),
+    // history: createWebHistory(`/${APP_NAME}/`),
+    history: createWebHistory('/vite-child/'),
     routes
   })
   app =createApp(myApp);

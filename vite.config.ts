@@ -7,6 +7,7 @@ const useDevMode = true
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: '/vite-child/',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src')
@@ -33,8 +34,10 @@ export default defineConfig({
       }
     }
   },
-  plugins: [vue(),
-    qiankun('vite-plugin-qiankun', {
-      useDevMode
-    })]
+  plugins: [
+    vue(),
+    // qiankun('vite-plugin-qiankun', {
+    //   useDevMode
+    // })
+  ]
 })
