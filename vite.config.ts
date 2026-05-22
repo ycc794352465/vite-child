@@ -1,6 +1,5 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import qiankun from "vite-plugin-qiankun";
 import path from 'path'
 
 const useDevMode = true
@@ -35,9 +34,6 @@ export default defineConfig({
     }
   },
   plugins: [
-    vue(),
-    // qiankun('vite-plugin-qiankun', {
-    //   useDevMode
-    // })
+    vue()
   ]
 })

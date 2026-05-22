@@ -1,19 +1,17 @@
 {
-  "name": "vite-qiankun-child",
+  "name": "vite-child",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc --noEmit || true && vite build",
+    "build": "vue-tsc && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
     "express": "^5.2.1",
     "node-fetch": "^3.3.2",
     "path": "^0.12.7",
-    "qiankun": "^2.8.4",
-    "vite-plugin-qiankun": "^1.0.15",
     "vue": "^3.2.41",
     "vue-router": "~4.6.4",
     "vue-virtual-scroller": "^3.0.3",
