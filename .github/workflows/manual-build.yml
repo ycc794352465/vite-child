@@ -1,27 +1,32 @@
-name: 手动打包 + 部署(CI/CD)
-# 纯手动触发，和 Jenkins 一样
+name: 手动打包部署(CI+CD)
 on:
   workflow_dispatch:
 
 jobs:
-  build-and-deploy:
+  build-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: 拉取代码
         uses: actions/checkout@v4
 
-      - name: 设置 Node.js
+      - name: 设置Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: 安装依赖
-        run: pnpm install
+      # 替换为官方推荐方式，不再飘红
+      - name: 安装 pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: 安装依赖（国内镜像加速）
+        run: pnpm install --registry=https://registry.npmmirror.com
 
       - name: 打包项目
         run: pnpm run build
 
-      - name: 部署到 GitHub Pages (CD 环节)
+      - name: 部署到GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
