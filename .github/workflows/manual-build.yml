@@ -1,0 +1,15 @@
+name: 手动打包部署
+on:
+  workflow_dispatch:
+
+jobs:
+  build-task:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 拉取代码
+        uses: actions/checkout@v4
+
+      - name: 安装依赖并打包
+        run: |
+          npm install
+          npm run build
