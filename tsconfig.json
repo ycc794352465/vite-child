@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "skipLibCheck": true,
+    "allowJs": false,   // 👈 不允许 JS 文件
     "module": "commonjs",
     "declaration": true,
     "removeComments": true,
@@ -26,6 +27,7 @@
      "src/**/*.vue",
      "src/types/*.d.ts"
   ],
+  "exclude": ["node_modules", "dist", "**/*.js"],
   "references": [{ "path": "./tsconfig.node.json" }],
   "type":["node"]
 }
