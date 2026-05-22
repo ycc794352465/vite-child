@@ -1,15 +1,28 @@
-name: 手动打包部署
+name: 手动打包 + 部署(CI/CD)
+# 纯手动触发，和 Jenkins 一样
 on:
   workflow_dispatch:
 
 jobs:
-  build-task:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: 拉取代码
         uses: actions/checkout@v4
 
-      - name: 安装依赖并打包
-        run: |
-          npm install
-          npm run build
+      - name: 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 安装依赖
+        run: npm install
+
+      - name: 打包项目
+        run: npm run build
+
+      - name: 部署到 GitHub Pages (CD 环节)
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
