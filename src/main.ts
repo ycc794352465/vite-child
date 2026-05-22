@@ -1,10 +1,14 @@
 import { App,createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import myApp from './App.vue'
+import './style.css'
 import { routes } from './router'
 import store from './store'
 import { name as APP_NAME} from '../package.json';
 import { renderWithQiankun, qiankunWindow } from "vite-plugin-qiankun/es/helper";
+// 👉 引入虚拟滚动
+import VirtualScroller from 'vue-virtual-scroller'
+import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 
 let app:App;
 
@@ -16,9 +20,17 @@ function render(props: any) {
     routes
   })
   app =createApp(myApp);
+  app.use(VirtualScroller)
   app.use(store)
   app.use(router)
   .mount(container ? container.querySelector('#child-app') : '#child-app')
+}
+// 注入 CommonJS 环境变量，解决 qiankun 下 vue-router 的报错
+if (!(window as any).exports) {
+  (window as any).exports = {};
+}
+if (!(window as any).module) {
+  (window as any).module = { exports: (window as any).exports };
 }
 renderWithQiankun({
   mount(props) {
