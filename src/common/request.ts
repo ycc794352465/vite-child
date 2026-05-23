@@ -2,6 +2,11 @@
 import { ZP_API } from '@/common/common';
 
 
+// Avoid using `import.meta` directly to prevent TypeScript errors when
+// the compiler `--module` option doesn't support `import.meta`.
+// Prefer process.env (Node) or a window/globalThis fallback used at build time.
+const baseUrl = import.meta.env.VITE_API_BASE_URL
+
 export const fetchChatStream = async (
   model: string,
   messages: ChatMessage[],
@@ -14,7 +19,7 @@ export const fetchChatStream = async (
   };
 
   // const res = await fetch('/bigmodel-api/chat/completions', {
-  const res = await fetch('https://open.bigmodel.cn/api/paas/v4/chat/completions', {
+  const res = await fetch(`${baseUrl}/chat/completions`, {
 
     method: 'POST',
     headers: {
