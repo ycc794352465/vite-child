@@ -13,7 +13,9 @@ export const fetchChatStream = async (
     stream: true,
   };
 
-  const res = await fetch('/bigmodel-api/chat/completions', {
+  // const res = await fetch('/bigmodel-api/chat/completions', {
+  const res = await fetch('https://open.bigmodel.cn/api/paas/v4/chat/completions', {
+
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${ZP_API}`,
