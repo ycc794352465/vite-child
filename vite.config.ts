@@ -3,12 +3,19 @@ import vue from '@vitejs/plugin-vue'
 import path from 'path'
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ mode,command }) => {
   // 加载 env 文件夹里的环境变量
   const envDir = path.resolve(__dirname, 'env')
   const env = loadEnv(mode, envDir)
+  let base = '/'
+
+  if (command === 'build') {
+    // 只有打包才走这里
+    const envPath = mode === 'production' ? 'prod' : mode
+    base = `/vite-child/${envPath}/`
+  }
   return {
-    base: '/vite-child/',
+    base,
     resolve: {
       alias: {
         '@': path.resolve(__dirname, 'src')
