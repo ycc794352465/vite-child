@@ -14,17 +14,27 @@ jobs:
         with:
           node-version: 20
 
-      # 替换为官方推荐方式，不再飘红
       - name: 安装 pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 9
 
-      - name: 安装依赖（国内镜像加速）
+      # 自动根据当前分支判断环境 ✅ 核心
+      - name: 设置环境变量
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
+            echo "BUILD_CMD=pnpm run build:dev" >> $GITHUB_ENV
+          elif [[ "${{ github.ref }}" == "refs/heads/test" ]]; then
+            echo "BUILD_CMD=pnpm run build:test" >> $GITHUB_ENV
+          elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "BUILD_CMD=pnpm run build:prod" >> $GITHUB_ENV
+          fi
+
+      - name: 安装依赖
         run: pnpm install --registry=https://registry.npmjs.org
 
-      - name: 打包项目
-        run: pnpm run build
+      - name: 打包项目（自动识别环境）
+        run: ${{ env.BUILD_CMD }}
 
       - name: 部署到GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
