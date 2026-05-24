@@ -5,7 +5,8 @@ import path from 'path'
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
   // 加载 env 文件夹里的环境变量
-  const env = loadEnv(mode, `${process.cwd()}/env`)
+  const envDir = path.resolve(__dirname, 'env')
+  const env = loadEnv(mode, envDir)
   return {
     base: '/vite-child/',
     resolve: {
@@ -36,6 +37,12 @@ export default defineConfig(({ mode }) => {
     },
     plugins: [
       vue()
-    ]
+    ],
+    define: {
+      // 手动注入环境变量，替换 import.meta.env
+      'process.env.VITE_API_BASE_URL': JSON.stringify(env.VITE_API_BASE_URL),
+      // 或者兼容 import.meta.env 的写法
+      'import.meta.env.VITE_API_BASE_URL': JSON.stringify(env.VITE_API_BASE_URL),
+    },
   }
 })

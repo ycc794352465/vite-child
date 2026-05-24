@@ -65,7 +65,7 @@
 <script setup>
 import { ref, nextTick, watch, toRefs, reactive, computed } from 'vue'
 import { debounce } from '@/common/common'
-import { fetchChatStream, useNetSearch } from '@/common/request';
+import { fetchChatStream } from '@/common/request';
 
 const state = reactive({
   userText: '',
@@ -139,29 +139,13 @@ const sendMsg = async () => {
     let systemPrompt = `当前北京时间：${nowTime}，请准确、简洁回答用户问题。`
 
     // 开启联网搜索时，先调用suxun接口获取实时信息
-    if (useWebSearch.value) {
-      const searchTipIndex = chatList.value.length
-      chatList.value.push({ role: 'assistant', content: '🔍 正在联网搜索相关信息，请稍候...' })
-      scrollToBottom()
-
-      // 调用免费搜索接口
-      const searchResult = await useNetSearch(text)
-      console.log('-----'+searchResult)
-      // 移除临时提示消息
-      chatList.value.splice(searchTipIndex, 1)
-
-      // 将搜索结果拼入系统提示词
-      if (searchResult) {systemPrompt += `===== 【重要指令】=====
-你必须**优先使用下面的实时联网信息回答用户问题**，
-如果有比赛结果，直接告诉用户，不要再说“无法获取数据”。
-如果没有具体数据，就告诉用户当前时间，然后按常识回答。
-不要瞎编内容
-实时联网信息：
-${searchResult}
-=====================
-`
-      }
-    }
+    
+    // if (useWebSearch.value) {
+    //   const searchTipIndex = chatList.value.length
+    //   chatList.value.push({ role: 'assistant', content: '🔍 正在联网搜索相关信息，请稍候...' })
+    //   scrollToBottom()
+    //   chatList.value.splice(searchTipIndex, 1)
+    // }
 
     const messages = [
       { role: 'system', content: systemPrompt },
@@ -169,7 +153,7 @@ ${searchResult}
     ]
 
     // 调用智谱流式接口（原有逻辑不变）
-    const res = await fetchChatStream(selectModel.value, messages)
+    const res = await fetchChatStream(selectModel.value, messages, useWebSearch.value)
     const reader = res.body.getReader()
     const decoder = new TextDecoder()
     let aiReply = ''
