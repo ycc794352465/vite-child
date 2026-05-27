@@ -29,6 +29,9 @@ declare global {
     interface Debounce {
         <T extends AnyFunction>(fn: T, delay?: number): (...args: Parameters<T>) => void;
     }
+    interface Throttle {
+        <T extends AnyFunction>(fn: T, delay?: number): (...args: Parameters<T>) => void;
+    }
 }
 
 export {};

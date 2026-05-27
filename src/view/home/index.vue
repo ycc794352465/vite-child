@@ -64,7 +64,7 @@
 
 <script setup>
 import { ref, nextTick, watch, toRefs, reactive, computed } from 'vue'
-import { debounce } from '@/common/common'
+import { debounce } from '@/common/utils'
 import { fetchChatStream } from '@/common/request';
 
 const state = reactive({
