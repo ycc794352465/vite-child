@@ -1,65 +1,73 @@
 <template>
-  <div class="chat-container">
-    <div class="chat-header">
-      <select v-model="selectModel" class="model-select">
-        <option value="glm-4-flash">免费版(不耗额度)</option>
-        <option value="glm-4v">高级4.6模型</option>
-        <option value="glm-5.1">超强5.1模型</option>
-      </select>
+  <div class="app-shell">
+    <section class="hero">
+      <div class="hero-badge">AI 工具</div>
+      <h2>尹聪聪的AI工具</h2>
+      <p class="hero-desc">智能助手、轻量工具与流程集成，打造更高阶的工作体验。</p>
+    </section>
+    <div class="chat-container">
+      <div class="chat-header">
+        <select v-model="selectModel" class="model-select">
+          <option value="glm-4-flash">免费版(不耗额度)</option>
+          <option value="glm-4v">高级4.6模型</option>
+          <option value="glm-5.1">超强5.1模型</option>
+        </select>
 
-      <label class="web-search-switch">
-        <span class="label-txt">联网搜索</span>
-        <input v-model="useWebSearch" type="checkbox">
-        <span class="slider"></span>
-      </label>
+        <label class="web-search-switch">
+          <span class="label-txt">联网搜索</span>
+          <input v-model="useWebSearch" type="checkbox">
+          <span class="slider"></span>
+        </label>
 
-      <button class="clear-btn" @click="clearChat">清空对话</button>
-    </div>
+        <button class="clear-btn" @click="clearChat">清空对话</button>
+      </div>
 
-    <div 
-      class="chat-box" 
-      ref="chatBox"
-      @scroll="handleScroll"
-    >
-      <div :style="{ height: totalHeight + 'px' }"></div>
       <div 
-        class="visible-items"
-        :style="{ transform: `translateY(${offsetY}px)` }"
+        class="chat-box" 
+        ref="chatBox"
+        @scroll="handleScroll"
       >
+        <div :style="{ height: totalHeight + 'px' }"></div>
         <div 
-          class="item-wrapper"
-          v-for="(msg, idx) in visibleItems"
-          :key="idx"
+          class="visible-items"
+          :style="{ transform: `translateY(${offsetY}px)` }"
         >
           <div 
-            class="item"
-            :class="msg.role === 'user' ? 'user' : 'ai'"
+            class="item-wrapper"
+            v-for="(msg, idx) in visibleItems"
+            :key="idx"
           >
-            <span class="label">{{ msg.role === 'user' ? '你' : 'AI' }}：</span>
-            <span class="content">{{ msg.content }}</span>
-            <button 
-              v-if="msg.role === 'assistant' && msg.content"
-              class="copy-btn"
-              @click="copyMsg(msg.content)"
+            <div 
+              class="item"
+              :class="msg.role === 'user' ? 'user' : 'ai'"
             >
-              复制
-            </button>
+              <span class="label">{{ msg.role === 'user' ? '你' : 'AI' }}：</span>
+              <span class="content">{{ msg.content }}</span>
+              <button 
+                v-if="msg.role === 'assistant' && msg.content"
+                class="copy-btn"
+                @click="copyMsg(msg.content)"
+              >
+                复制
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <div class="input-wrap">
-      <textarea 
-        v-model="userText" 
-        placeholder="请输入消息..."
-        @keydown.enter.prevent="handleKeydown"
-      ></textarea>
-      <button :disabled="loading" @click="debouncedSendMsg">
-        {{ loading ? '思考中...' : '发送消息' }}
-      </button>
+      <div class="input-wrap">
+        <textarea 
+          v-model="userText" 
+          placeholder="请输入消息..."
+          @keydown.enter.prevent="handleKeydown"
+        ></textarea>
+        <button :disabled="loading" @click="debouncedSendMsg">
+          {{ loading ? '思考中...' : '发送消息' }}
+        </button>
+      </div>
     </div>
   </div>
+  
 </template>
 
 <script setup>
@@ -230,6 +238,71 @@ nextTick(() => {
 </script>
 
 <style scoped>
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1.5rem 3rem;
+  gap: 2rem;
+  background: radial-gradient(circle at top left, rgba(96, 165, 250, 0.16), transparent 22%),
+    radial-gradient(circle at bottom right, rgba(59, 130, 246, 0.14), transparent 18%),
+    linear-gradient(180deg, #020617 0%, #0b1122 100%);
+}
+.hero {
+  width: min(100%, 960px);
+  padding: 2rem 2.25rem;
+  border-radius: 32px;
+  background: rgba(15, 23, 42, 0.88);
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  box-shadow: 0 28px 80px rgba(15, 23, 42, 0.3);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(16px);
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top left, rgba(96, 165, 250, 0.22), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(59, 130, 246, 0.14), transparent 24%);
+  pointer-events: none;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1.1rem;
+  border-radius: 999px;
+  background: rgba(96, 165, 250, 0.16);
+  color: #dbeafe;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  margin-bottom: 1rem;
+  position: relative;
+  z-index: 1;
+}
+h2 {
+  margin: 0;
+  color: #f8fbff;
+  font-size: clamp(2rem, 3vw, 3.2rem);
+  line-height: 1.05;
+  letter-spacing: 0.02em;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-desc {
+  margin: 1rem 0 0;
+  color: #cbd5e1;
+  max-width: 760px;
+  line-height: 1.8;
+  font-size: 1rem;
+}
+
 .chat-container {
   width: 90%;
   max-width: 900px;
