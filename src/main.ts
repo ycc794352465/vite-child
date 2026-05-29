@@ -10,6 +10,11 @@ import store from './store'
 import VirtualScroller from 'vue-virtual-scroller'
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 
+// if (import.meta.env.DEV) {
+//   import('./mocks/index.js')
+// }
+import '@/mocks/index.ts'
+
 let app:App;
 
 let router:any = null;

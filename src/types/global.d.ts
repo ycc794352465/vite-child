@@ -32,6 +32,22 @@ declare global {
     interface Throttle {
         <T extends AnyFunction>(fn: T, delay?: number): (...args: Parameters<T>) => void;
     }
+    interface ValidationRule {
+      required?: boolean
+      message?: string
+      pattern?: RegExp
+      min?: number
+      max?: number
+      validator?: (value: any) => boolean | string
+    }
+    interface FieldConfig {
+      [key: string]: ValidationRule[]
+    }
+    interface FormState {
+      values: Record<string, any>
+      errors: Record<string, string>
+      touched: Record<string, boolean>
+    }
 }
 
 export {};

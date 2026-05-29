@@ -70,7 +70,7 @@
   
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, nextTick, watch, toRefs, reactive, computed } from 'vue'
 import { debounce } from '@/common/utils'
 import { fetchChatStream } from '@/common/request';
@@ -78,13 +78,13 @@ import { fetchChatStream } from '@/common/request';
 const state = reactive({
   userText: '',
   loading: false,
-  chatList: [],
+  chatList: [] as ChatMessage[],
   selectModel: 'glm-4-flash',
   useWebSearch: false
 });
 
 const { userText, loading, chatList, selectModel, useWebSearch } = toRefs(state);
-const chatBox = ref(null)
+const chatBox = ref<HTMLElement | null>(null)
 const itemHeight = 80
 
 const scrollTop = ref(0)
@@ -98,6 +98,7 @@ const visibleItems = computed(() => {
 })
 
 const handleScroll = () => {
+   if (!chatBox.value) return
   scrollTop.value = chatBox.value.scrollTop
   startIndex.value = Math.floor(scrollTop.value / itemHeight)
   offsetY.value = startIndex.value * itemHeight
@@ -123,9 +124,9 @@ const clearChat = () => {
   localStorage.removeItem('chatList');
 }
 
-const copyMsg = async (content) => {
+const copyMsg = async (content: string | Record<string, any>) => {
   try {
-    await navigator.clipboard.writeText(content)
+    await navigator.clipboard.writeText(content as string)
     alert('复制成功')
   } catch (err) {
     alert('复制失败，请手动复制')
@@ -162,6 +163,9 @@ const sendMsg = async () => {
 
     // 调用智谱流式接口（原有逻辑不变）
     const res = await fetchChatStream(selectModel.value, messages, useWebSearch.value)
+    if (!res.body) {
+      throw new Error('响应体为空')
+    }
     const reader = res.body.getReader()
     const decoder = new TextDecoder()
     let aiReply = ''
@@ -202,7 +206,7 @@ const sendMsg = async () => {
 
 const debouncedSendMsg = debounce(sendMsg, 500);
 
-const handleKeydown = (e) => {
+const handleKeydown = (e: KeyboardEvent) => {
   if (e.ctrlKey && e.key === 'Enter') {
     userText.value += '\n';
     return;

@@ -12,19 +12,19 @@
       <form class="register-form" @submit.prevent>
         <label>
           <span>用户名</span>
-          <input type="text" placeholder="请输入用户名" autocomplete="username" />
+          <input type="text" placeholder="请输入用户名" autocomplete="username" v-model="username" />
         </label>
 
         <label>
           <span>密码</span>
-          <input type="password" placeholder="请输入密码" autocomplete="current-password" />
+          <input type="password" placeholder="请输入密码" autocomplete="current-password" v-model="password" />
         </label>
         <label>
           <span>确认密码</span>
-          <input type="password" placeholder="请确认密码" autocomplete="current-password" />
+          <input type="password" placeholder="请确认密码" autocomplete="current-password" v-model="surePassword" />
         </label>
 
-        <button type="submit" class="submit-button">注册</button>
+        <button type="submit" class="submit-button" @click="register">注册</button>
       </form>
 
       <div class="register-footer">
@@ -34,7 +34,15 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import { ref } from "vue";
+
+const username = ref("");
+const password = ref("");
+const surePassword = ref("");
+const register = () => {
+  console.log("register");
+};
 </script>
 
 <style scoped>
