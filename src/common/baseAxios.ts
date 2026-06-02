@@ -1,7 +1,8 @@
 import axios, { AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
-import { ZP_API } from './common';
+// import { ZP_API } from './common';
 
-const baseUrl = import.meta.env.VITE_API_BASE_URL;
+// const baseUrl = import.meta.env.VITE_API_BASE_URL;
+const baseUrl = '';
 
 let isRefreshing = false;
 let failedQueue: Array<{
@@ -30,9 +31,9 @@ const service: AxiosInstance = axios.create({
 
 service.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    if (ZP_API) {
-      config.headers['Authorization'] = `Bearer ${ZP_API}`;
-    }
+    // if (ZP_API) {
+    //   config.headers['Authorization'] = `Bearer ${ZP_API}`;
+    // }
     
     const accessToken = localStorage.getItem('accessToken');
     if (accessToken) {

@@ -15,6 +15,11 @@ export const routes = [
     component: () => import("../view/home/index.vue"),
   },
   {
+    path: "/bigFile",
+    name: "bigFile",
+    component: () => import("../view/bigFileUpload/index.vue"),
+  },
+  {
     path: "/test",
     name: "test",
     component: () => import("../view/test/index.vue"),

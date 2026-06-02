@@ -42,22 +42,22 @@ export default function useFormValidation(initialValues: Record<string, any> = {
     // 遍历字段的所有验证规则，依次进行验证
     for (const rule of fieldRules) {
       if (rule.required && (value === undefined || value === null || value === '')) {
-        errorMessage = rule.message || `${field} 是必填项`
+        errorMessage = rule.message || `${rule.name || field}是必填项`
         break
       }
 
       if (value && rule.pattern && !rule.pattern.test(value)) {
-        errorMessage = rule.message || `${field} 格式不正确`
+        errorMessage = rule.message || `${rule.name || field}格式不正确`
         break
       }
 
       if (value && typeof value === 'string') {
         if (rule.min && value.length < rule.min) {
-          errorMessage = rule.message || `${field} 至少需要 ${rule.min} 个字符`
+          errorMessage = rule.message || `${rule.name || field}至少需要${rule.min}个字符`
           break
         }
         if (rule.max && value.length > rule.max) {
-          errorMessage = rule.message || `${field} 不能超过 ${rule.max} 个字符`
+          errorMessage = rule.message || `${rule.name || field}不能超过${rule.max}个字符`
           break
         }
       }
@@ -65,7 +65,7 @@ export default function useFormValidation(initialValues: Record<string, any> = {
       if (rule.validator) {
         const result = rule.validator(value)
         if (result !== true) {
-          errorMessage = typeof result === 'string' ? result : (rule.message || `${field} 验证失败`)
+          errorMessage = typeof result === 'string' ? result : (rule.message || `${rule.name || field} 验证失败`)
           break
         }
       }

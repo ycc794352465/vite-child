@@ -1,9 +1,19 @@
-import { defineConfig, loadEnv } from 'vite'
+import { defineConfig, loadEnv, Plugin, ViteDevServer } from 'vite'
 import vue from '@vitejs/plugin-vue'
+
+import { uploadChunkMiddleware, loginMiddleware } from './myServer/viteMock' // 👈 引入
 import path from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode,command }) => {
+
+  const customPlugin: Plugin = {
+    name: 'custom-server-plugin',
+    configureServer(server: ViteDevServer) {
+      server.middlewares.use(uploadChunkMiddleware)
+      server.middlewares.use(loginMiddleware)
+    }
+  }
   // 加载 env 文件夹里的环境变量
   const envDir = path.resolve(__dirname, 'env')
   const env = loadEnv(mode, envDir)
@@ -40,10 +50,16 @@ export default defineConfig(({ mode,command }) => {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
           }
         }
-      }
+      },
+      // middleware:[uploadChunkMiddleware, loginMiddleware]
+      //  configureServer(server) {
+      //   server.middlewares.use(uploadChunkMiddleware)
+      //   server.middlewares.use(loginMiddleware)
+      // }
     },
     plugins: [
-      vue()
+      vue(),
+      ...(command === 'serve' ? [customPlugin] : [])
     ],
     define: {
       // 手动注入环境变量，替换 import.meta.env

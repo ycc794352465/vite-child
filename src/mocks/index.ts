@@ -13,4 +13,16 @@ mock.onPost('/api/login').reply(() => {
     data: loginData 
   }]
 })
+
+const passThroughList = [
+  '/api/upload/check',    // 检查
+  '/api/upload/chunk',    // 上传分片
+  '/api/upload/merge',    // 合并
+]
+
+// 批量设置 passThrough
+passThroughList.forEach(url => {
+  mock.onAny(url).passThrough()
+})
+
 console.log('✅ Mock 已启动，所有接口自动拦截')

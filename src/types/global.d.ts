@@ -38,7 +38,8 @@ declare global {
       pattern?: RegExp
       min?: number
       max?: number
-      validator?: (value: any) => boolean | string
+      validator?: (value: any) => boolean | string,
+      name?: string
     }
     interface FieldConfig {
       [key: string]: ValidationRule[]
@@ -47,6 +48,12 @@ declare global {
       values: Record<string, any>
       errors: Record<string, string>
       touched: Record<string, boolean>
+    }
+    interface MessageType {
+        success: (msg: string) => void;
+        warning: (msg: string) => void;
+        error: (msg: string) => void;
+        info: (msg: string) => void;
     }
 }
 

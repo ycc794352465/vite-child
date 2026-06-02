@@ -17,7 +17,9 @@
             placeholder="请输入邮箱或用户名"
             autocomplete="username"
             v-model="formData.username"
+            @blur="validateField('username')"
           />
+          <span class="error" v-show="touched.username && errors.username">{{errors.username}}</span>
         </label>
 
         <label>
@@ -26,8 +28,10 @@
             type="password"
             placeholder="请输入密码"
             autocomplete="current-password"
+            @blur="validateField('password')"
             v-model="formData.password"
           />
+          <span class="error" v-show="touched.password && errors.password">{{errors.password}}</span>
         </label>
 
         <div class="form-actions">
@@ -51,25 +55,35 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter } from "vue-router";
-import { reactive } from "vue";
-import { loginHttp } from "@/common/request";
+import useFormValidation from "@/hooks/useFormValidation";
+import useLogin from "@/hooks/useLogin";
 
-const router = useRouter();
-const formData = reactive({
-  username: "",
-  password: "",
-});
-const loginWay = async () => {
-  try {
-    const res = await loginHttp(formData);
-    localStorage.setItem("accessToken", res.data.refreshToken);
-    localStorage.setItem("refreshToken", res.data.refreshToken);
-    router.push("/home"); // 假设登录成功后跳转到仪表盘
-  } catch (error) {
-    console.log("登录失败22:", error);
-  }
+const initData = {
+  "username": "",
+  "password": "",
 };
+const formRules = {
+  username: [
+    {
+      required: true,
+      min: 3,
+      max: 12,
+      name: "用户名",
+    },
+  ],
+  password: [
+    {
+      required: true,
+      min: 6,
+      max: 12,
+      name: "密码",
+    },
+  ],
+};
+const formMehods = useFormValidation(initData, formRules);
+const {values:formData, isSubmitting, validateAll, validateField,errors, touched} = formMehods;
+const {loginWay} = useLogin({ validateAll, isSubmitting, formData });
+
 </script>
 
 <style scoped lang="less">
@@ -183,6 +197,14 @@ const loginWay = async () => {
         gap: 10px;
         color: #374151;
         font-size: 0.95rem;
+        position: relative;
+        .error {
+          position: absolute;
+          color: red;
+          font-size: 0.8rem;
+          left: 0;
+          bottom: -20px;
+        }
       }
      
       input {
