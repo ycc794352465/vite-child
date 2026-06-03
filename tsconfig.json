@@ -10,6 +10,7 @@
     "useDefineForClassFields": true,
     "module": "ESNext",
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "types": ["wicg-file-system-access"],
     "skipLibCheck": true,
     "moduleResolution": "node",
     "allowImportingTsExtensions": true,

@@ -3,13 +3,7 @@
     <h2>大文件分片上传</h2>
     
     <div class="upload-area">
-      <input 
-        type="file" 
-        ref="fileInput" 
-        @change="handleFileSelect" 
-        :disabled="uploading"
-        class="file-input"
-      />
+      <button @click="openFileDialog" :disabled="uploading">选择文件并上传</button>
       <div v-if="selectedFile" class="file-info">
         <p>文件名: {{ selectedFile.name }}</p>
         <p>文件大小: {{ formatFileSize(selectedFile.size) }}</p>
@@ -17,9 +11,6 @@
     </div>
 
     <div v-if="selectedFile" class="controls">
-      <button @click="startUpload" :disabled="uploading || uploadComplete">
-        {{ uploading ? '上传中...' : '开始上传' }}
-      </button>
       <button @click="pauseUpload" :disabled="!uploading">暂停</button>
       <button @click="resumeUpload" :disabled="!paused || uploadComplete">继续</button>
       <button @click="cancelUpload" :disabled="!uploading && !paused">取消</button>
@@ -61,8 +52,7 @@ const {
   uploadLog,
   uploadComplete,
   paused,
-  startUpload,
-  handleFileSelect,
+  openFileDialog,
   pauseUpload,
   resumeUpload,
   cancelUpload,

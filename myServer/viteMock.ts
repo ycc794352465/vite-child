@@ -122,9 +122,7 @@ function parseRequestBody<T = any>(req: IncomingMessage): Promise<T | null> {
   return new Promise((resolve) => {
     
     // 1. 先判断 Content-Type，非JSON格式直接返回 null，不解析
-    console.log('headers:', req.headers);
     const contentType = req.headers['content-type'] || '';
-    console.log('contentType', contentType);
     // 判断是否为 multipart/form-data
     if (contentType.includes('multipart/form-data')) {
       parseMultipartFormData(req).then((data) => {
@@ -136,7 +134,6 @@ function parseRequestBody<T = any>(req: IncomingMessage): Promise<T | null> {
     req.on('data', (chunk) => (body += chunk))
     req.on('end', () => {
       try {
-        console.log('Received request body:', body); // 调试日志，查看原始请求体
         if (contentType.includes('application/x-www-form-urlencoded')) {
           const parsed = parseUrlEncoded(body)
           resolve(parsed as unknown as T)
@@ -213,7 +210,6 @@ export function uploadChunkMiddleware(
   // ------------------------------
   if (req.url === '/api/upload/chunk' && req.method === 'POST') {
     parseRequestBody(req).then(({fileHash, chunkIndex}) => {
-      console.log('上传分片', fileHash, chunkIndex)
       if (!uploadedChunkMap.has(fileHash)) {
         uploadedChunkMap.set(fileHash, [])
       }
@@ -258,8 +254,6 @@ export function loginMiddleware(
     if (handleCors(req, res)) return
     if (req.url === '/api/login' && req.method === 'POST') {
         parseRequestBody(req).then(({ username, password }) => {
-        
-            console.log('username', username, 'password', password)
             res.writeHead(200, { 'Content-Type': 'application/json' })
             res.end(JSON.stringify({
                 code: 0,
