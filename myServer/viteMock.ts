@@ -99,7 +99,6 @@ function parseMultipartFormData(req: IncomingMessage): Promise<Record<string, an
           }
         }
         
-        console.log('Parsed multipart data:', result)
         resolve(result)
       } catch (error) {
         console.error('Parse multipart error:', error)

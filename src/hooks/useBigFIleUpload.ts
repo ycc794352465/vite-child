@@ -5,6 +5,7 @@ import axios from "axios";
 import HashWorker from "@/worker/childWorker?worker";
 import { formatFileSize } from "@/common/utils";
 
+// ... existing code ...
 /**
  * 大文件分片上传Hook
  * 
@@ -19,7 +20,6 @@ import { formatFileSize } from "@/common/utils";
  * @returns {Ref<string[]>} returns.uploadLog - 上传日志记录
  * @returns {Ref<boolean>} returns.uploadComplete - 上传是否完成
  * @returns {Ref<boolean>} returns.paused - 上传是否暂停
- * @returns {Function} returns.startUpload - 开始上传文件
  * @returns {Function} returns.pauseUpload - 暂停上传
  * @returns {Function} returns.resumeUpload - 恢复上传
  * @returns {Function} returns.cancelUpload - 取消上传
@@ -66,6 +66,10 @@ export default function useBigFileUpload() {
     }
   };
 
+  /**
+   * 选择要上传的文件并重置上传状态
+   * @param file - 用户选择的文件对象
+   */
   const selectFile = (file: File) => {
     selectedFile.value = file;
     resetUploadState();
@@ -75,6 +79,7 @@ export default function useBigFileUpload() {
 
   /**
    * 重置上传状态到初始值
+   * @param keepCancelingFlag - 是否保留取消标志位，默认为false
    */
   const resetUploadState = (keepCancelingFlag = false) => {
     uploading.value = false;
@@ -134,7 +139,7 @@ export default function useBigFileUpload() {
         }
       };
 
-      worker.postMessage({ file, chunkIndex, chunkSize: CHUNK_SIZE });
+      worker.postMessage({ type: 'hashFileChunk', file, chunkIndex, chunkSize: CHUNK_SIZE });
     });
   };
 
@@ -229,6 +234,7 @@ export default function useBigFileUpload() {
 
   /**
    * 更新上传进度百分比
+   * 综合考虑已完成分片和正在上传分片的进度，计算总体上传进度
    */
   const updateProgress = () => {
     if (uploadProgress.total > 0) {
@@ -247,6 +253,11 @@ export default function useBigFileUpload() {
     }
   };
 
+  /**
+   * 判断错误是否为取消或中止相关的错误
+   * @param error - 需要判断的错误对象
+   * @returns boolean - 是否为取消/中止错误
+   */
   const isAbortError = (error: any) => {
     return axios.isCancel?.(error) ||
       error?.name === 'CanceledError' ||
@@ -256,6 +267,7 @@ export default function useBigFileUpload() {
 
   /**
    * 处理下一个待上传的分片，控制并发数量
+   * 从待上传队列中取出分片进行上传，确保同时进行的上传任务不超过MAX_CONCURRENT限制
    */
   const processNextChunk = async () => {
     if (
@@ -379,6 +391,7 @@ export default function useBigFileUpload() {
 
   /**
    * 暂停上传
+   * 中止当前的上传请求，设置暂停状态，允许后续恢复
    */
   const pauseUpload = () => {
     if (!uploading.value || paused.value) {
@@ -396,6 +409,7 @@ export default function useBigFileUpload() {
 
   /**
    * 恢复上传
+   * 清除暂停状态，创建新的AbortController，继续处理待上传的分片
    */
   const resumeUpload = () => {
     if (!paused.value) {
@@ -412,6 +426,7 @@ export default function useBigFileUpload() {
 
   /**
    * 取消上传并清理资源
+   * 设置取消标志，重置上传状态，清空选中的文件
    */
   const cancelUpload = () => {
     if (!uploading.value && !paused.value) {
@@ -427,6 +442,8 @@ export default function useBigFileUpload() {
 
   /**
    * 降级方案：传统 input 选择文件
+   * 动态创建隐藏的input元素用于文件选择，适用于不支持现代文件API的浏览器
+   * @returns Promise<File | null> - 返回用户选择的文件或null
    */
   function fallbackFileSelection(): Promise<File | null> {
     return new Promise<File | null>((resolve) => {
@@ -463,6 +480,7 @@ export default function useBigFileUpload() {
   /**
    * 【新增】快速选择文件并立即开始流式上传
    * 使用 File System Access API，选择大文件时几乎瞬间返回
+   * 优先使用现代API，失败时自动降级到传统方式
    */
   async function openFileDialog() {
     try {
@@ -508,6 +526,7 @@ export default function useBigFileUpload() {
   /**
    * 【新增】流式上传文件 - 边读取边上传
    * 使用 ReadableStream 逐块读取文件，累积到 CHUNK_SIZE 后立即启动上传（不阻塞读取）
+   * 这种方式可以避免一次性加载整个文件到内存，适合超大文件上传
    * @param file - 要上传的文件对象
    */
   const streamUploadFile = async (file: File) => {
@@ -636,6 +655,11 @@ export default function useBigFileUpload() {
     }
   };
 
+  /**
+   * 将多个Uint8Array数组合并为一个
+   * @param chunks - 需要合并的Uint8Array数组
+   * @returns Uint8Array - 合并后的数组
+   */
   const concatUint8Arrays = (chunks: Uint8Array[]): Uint8Array => {
     const totalLength = chunks.reduce((sum, arr) => sum + arr.length, 0);
     const result = new Uint8Array(totalLength);
@@ -647,6 +671,11 @@ export default function useBigFileUpload() {
     return result;
   };
 
+  /**
+   * 使用Web Worker计算ArrayBuffer的哈希值
+   * @param buffer - 需要计算哈希的ArrayBuffer数据
+   * @returns Promise<string> - 返回计算得到的哈希字符串
+   */
   const calculateHashFromBuffer = (buffer: ArrayBuffer): Promise<string> => {
     return new Promise((resolve, reject) => {
       const hashWorker = new HashWorker();
@@ -691,7 +720,6 @@ export default function useBigFileUpload() {
     uploadLog,
     uploadComplete,
     paused,
-    startUpload,
     pauseUpload,
     resumeUpload,
     cancelUpload,
