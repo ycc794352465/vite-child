@@ -80,4 +80,30 @@ export const loginHttp = async(loginData: { username: string; password: string }
     throw err;
   }
 }
+
+export const chunkFileUpload = async(formData:FormData, signal:AbortSignal, callback:(progressEvent: any) => void) =>{
+  try {
+    const res = await server.post(apiUrl.chunkUploadUrl, formData,{
+      signal: signal,
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        onUploadProgress: (progressEvent) => callback(progressEvent),
+    });
+    console.log(res.data,'chunkUpload')
+    return res;
+  } catch (err) {
+    throw err;
+  }
+}
+
+export const chunkMergeRequest = async(trunkData:ChunkMergeData) => {
+  try {
+    const res = await server.post(apiUrl.chunkMergeUrl, trunkData)
+   return res;
+  } catch (err) {
+    throw err;
+  }
+   
+}
 // ... existing code ...

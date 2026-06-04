@@ -4,7 +4,7 @@ import { ref, reactive, onUnmounted } from "vue";
 import axios from "axios";
 import HashWorker from "@/worker/childWorker?worker";
 import { formatFileSize } from "@/common/utils";
-
+import {chunkFileUpload, chunkMergeRequest} from "@/common/request";
 // ... existing code ...
 /**
  * 大文件分片上传Hook
@@ -85,13 +85,8 @@ export default function useBigFileUpload() {
     uploading.value = false;
     paused.value = false;
     uploadComplete.value = false;
-    uploadProgress.percentage = 0;
-    uploadProgress.loaded = 0;
-    uploadProgress.total = 0;
-    uploadProgress.uploadedChunks = 0;
-    uploadProgress.totalChunks = 0;
+    setUploadProgressVal(0, 0);
     uploadedChunks.clear();
-    chunkUploadProgress.clear();
     pendingChunks = [];
     activeWorkers = 0;
     isPausing = false;
@@ -176,18 +171,12 @@ export default function useBigFileUpload() {
     formData.append("fileSize", fileSize.toString());
 
     try {
-      await axios.post("/api/upload/chunk", formData, {
-        signal: abortController.signal,
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-        onUploadProgress: (progressEvent) => {
-          if (progressEvent.total) {
-            chunkUploadProgress.set(chunkIndex, progressEvent.loaded);
-            updateProgress();
-          }
-        },
-      });
+      await chunkFileUpload(formData, abortController.signal, (progressEvent) => {
+        if (progressEvent.total) {
+          chunkUploadProgress.set(chunkIndex, progressEvent.loaded);
+          updateProgress();
+        }
+      })
 
       uploadedChunks.add(chunkIndex);
       chunkUploadProgress.delete(chunkIndex);
@@ -219,7 +208,7 @@ export default function useBigFileUpload() {
       addLog("正在合并分片...");
       const fileName = cachedFileName || selectedFile.value?.name || 'unknown';
       const fileSize = cachedFileSize || selectedFile.value?.size || 0;
-      await axios.post("/api/upload/merge", {
+      await chunkMergeRequest({
         fileName: fileName,
         totalChunks: uploadProgress.totalChunks,
         fileSize: fileSize,
@@ -329,12 +318,7 @@ export default function useBigFileUpload() {
     abortController = new AbortController();
 
     const totalChunks = Math.ceil(selectedFile.value.size / CHUNK_SIZE);
-    uploadProgress.totalChunks = totalChunks;
-    uploadProgress.total = selectedFile.value.size;
-    uploadProgress.loaded = 0;
-    uploadProgress.uploadedChunks = 0;
-    uploadProgress.percentage = 0;
-    chunkUploadProgress.clear();
+    setUploadProgressVal(totalChunks, selectedFile.value.size);
 
     addLog(`开始上传，总分片数: ${totalChunks}`);
 
@@ -475,8 +459,6 @@ export default function useBigFileUpload() {
       inp.click();
     });
   }
-
- 
   /**
    * 【新增】快速选择文件并立即开始流式上传
    * 使用 File System Access API，选择大文件时几乎瞬间返回
@@ -523,6 +505,15 @@ export default function useBigFileUpload() {
     }
   }
 
+  const setUploadProgressVal = (totalChunks:number, totalSize:number)=>{
+    uploadProgress.totalChunks = totalChunks;
+    uploadProgress.total = totalSize;
+    uploadProgress.loaded = 0;
+    uploadProgress.uploadedChunks = 0;
+    uploadProgress.percentage = 0;
+    chunkUploadProgress.clear();
+  }
+
   /**
    * 【新增】流式上传文件 - 边读取边上传
    * 使用 ReadableStream 逐块读取文件，累积到 CHUNK_SIZE 后立即启动上传（不阻塞读取）
@@ -540,13 +531,7 @@ export default function useBigFileUpload() {
 
     const totalSize = file.size;
     const totalChunks = Math.ceil(totalSize / CHUNK_SIZE);
-    
-    uploadProgress.totalChunks = totalChunks;
-    uploadProgress.total = totalSize;
-    uploadProgress.loaded = 0;
-    uploadProgress.uploadedChunks = 0;
-    uploadProgress.percentage = 0;
-    chunkUploadProgress.clear();
+    setUploadProgressVal(totalChunks, totalSize)
 
     addLog(`   分片大小: ${formatFileSize(CHUNK_SIZE)}`);
     addLog(`   预计分片数: ${totalChunks}`);

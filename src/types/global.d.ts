@@ -55,6 +55,12 @@ declare global {
         error: (msg: string) => void;
         info: (msg: string) => void;
     }
+    interface ChunkMergeData {
+        fileId?: string;
+        fileName?: string;
+        chunks?: number;
+        [key: string]: any;
+    }
 }
 
 export {};
